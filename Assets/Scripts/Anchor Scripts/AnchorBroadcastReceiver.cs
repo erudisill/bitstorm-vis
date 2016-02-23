@@ -92,6 +92,7 @@ public class AnchorInfoPacket : System.IComparable<AnchorInfoPacket> {
         this.tagID = tagID;
     }
 
+
     public override string ToString() {
         return (string.Format("ID:{0}\r\nAnchor: {1}\r\nAnchor Location: ({2}, {3}, {4})\r\nTime Delay: {5}\r\nTag Location: ({6}, {7}, {8})\r\n",
                                blinkID,
