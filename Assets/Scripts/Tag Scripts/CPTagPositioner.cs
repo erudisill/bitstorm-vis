@@ -39,7 +39,7 @@ public class CPTagPositioner : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        FindNextPosition();
+        //FindNextPosition();
 	}
 
     private void FindNextPosition() {
