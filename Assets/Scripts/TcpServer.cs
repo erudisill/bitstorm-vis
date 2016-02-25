@@ -17,7 +17,10 @@ public class TcpServer : MonoBehaviour {
     public delegate void PacketEvent(string tagID, List<AnchorRange> ranges);
     public event PacketEvent OnPacketSent;
 
-    Thread startThread;
+	public delegate void PacketPositionEvent(string tagID, Vector3 pos);
+	public event PacketPositionEvent OnPacketPositionSent;
+	
+	Thread startThread;
 
     TcpListener myList;
 
@@ -83,21 +86,44 @@ public class TcpServer : MonoBehaviour {
         print("Connection closed on port: " + port.ToString());
     }
 
-	void ParsePacket(string csvString) {
-        // * 616A 57BB:0.58 44E8:1.49 B21A:1.14 ...
-        string[] parts = csvString.Split(' ');
-//		print ("ParsePacket: " + csvString);
+	void ParsePacket(string cvsString) {
+		if (cvsString.StartsWith ("*")) {
+			ParseRangeReportPacket (cvsString);
+		} else if (cvsString.StartsWith ("#")) {
+			ParsePositionPacket (cvsString);
+		} else {
+			Debug.Log("Unkonwn packet: " + cvsString);
+		}
+	}
 
-        string tagid = parts[1];
-        List<AnchorRange> results = new List<AnchorRange>();
-        for (int i = 2; i < parts.Length; i++) {
-            string[] ranges = parts[i].Split(':');
-            AnchorRange r = new AnchorRange();
-            r.id = ranges[0];
-            r.dist = Double.Parse(ranges[1]);
-            results.Add(r);
-        }
-        OnPacketSent(tagid, results);
+	void ParsePositionPacket(string csvString) {
+        string[] parts = csvString.Split(' ');
+
+		string tagid = parts[1];
+
+		Vector3 pos = new Vector3 ();
+		pos.x = float.Parse (parts [2]);
+		pos.y = float.Parse (parts [3]);
+		pos.z = float.Parse (parts [4]);
+
+		OnPacketPositionSent (tagid, pos);
     }
+
+	void ParseRangeReportPacket(string csvString) {
+		// * 616A 57BB:0.58 44E8:1.49 B21A:1.14 ...
+		string[] parts = csvString.Split(' ');
+		//		print ("ParsePacket: " + csvString);
+		
+		string tagid = parts[1];
+		List<AnchorRange> results = new List<AnchorRange>();
+		for (int i = 2; i < parts.Length; i++) {
+			string[] ranges = parts[i].Split(':');
+			AnchorRange r = new AnchorRange();
+			r.id = ranges[0];
+			r.dist = Double.Parse(ranges[1]);
+			results.Add(r);
+		}
+		OnPacketSent(tagid, results);
+	}
 
 }

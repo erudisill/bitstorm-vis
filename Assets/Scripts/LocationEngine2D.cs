@@ -27,6 +27,7 @@ public class LocationEngine2D : MonoBehaviour {
 		if (tcpServer != null) {
             print("LocationEngine2D: Adding TcpServer '" + tcpServer.gameObject.name + "'");
             tcpServer.OnPacketSent += PacketEventHandler;
+			tcpServer.OnPacketPositionSent += HandleOnPacketPositionSent;
         }
     }
 
@@ -34,13 +35,29 @@ public class LocationEngine2D : MonoBehaviour {
 		if (tcpServer != null) {
 			print("LocationEngine2D: Removing TcpServer '" + tcpServer.gameObject.name + "'");
 			tcpServer.OnPacketSent -= PacketEventHandler;
+			tcpServer.OnPacketPositionSent -= HandleOnPacketPositionSent;
         }
     }
 
-    void PacketEventHandler(string tagID, List<TcpServer.AnchorRange> ranges) {
+	void HandleOnPacketPositionSent (string tagID, Vector3 pos)
+	{
+		LocationEngine2D.ExecuteOnMainThread.Enqueue(() => ProcessPosition(tagID, pos));
+	}
+	
+	void PacketEventHandler(string tagID, List<TcpServer.AnchorRange> ranges) {
         LocationEngine2D.ExecuteOnMainThread.Enqueue(() => ProcessRangeReport(tagID, ranges));
     }
 
+	void ProcessPosition (string tagID, Vector3 pos)
+	{
+		GameObject tag = GameObject.FindGameObjectsWithTag(TagDefs.TAG_TAG).Where(t => tagID == t.name).First();
+		
+		TagMove tagScript = tag.GetComponent<TagMove> ();
+		if(tagScript != null) {
+			tagScript.Move(pos);
+		}
+		
+	}
     void ProcessRangeReport(string tagId, List<TcpServer.AnchorRange> ranges) {
 
 		// Build and process all packets based on ranges
