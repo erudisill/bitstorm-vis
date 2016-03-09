@@ -8,18 +8,15 @@ public class AnchorScript : MonoBehaviour {
 	{
 		public AnchorScript anchor = null;
 		public float distance;
-		public bool isSurveyed;
 	}
 
+	public bool IsSurveyed = false;
 	public bool DisplayRange = false;
 	public bool IsRanging = false;
 	public float RangeOffset = 0.0f;
 	public GameObject RangeText;
 
 	public int sampleSize = 5;
-
-	[HideInInspector]
-	public List<float> AnchorRanges = new List<float>();
 
 	[HideInInspector]
 	public List<AnchorDistance> AnchorDistances = new List<AnchorDistance> ();
