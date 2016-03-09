@@ -4,15 +4,29 @@ using System;
 
 public class AnchorScript : MonoBehaviour {
 
+	public class AnchorDistance
+	{
+		public AnchorScript anchor = null;
+		public float distance;
+		public bool isSurveyed;
+	}
+
 	public bool DisplayRange = false;
 	public bool IsRanging = false;
 	public float RangeOffset = 0.0f;
 	public GameObject RangeText;
 
 	public int sampleSize = 5;
-	
+
+	[HideInInspector]
+	public List<float> AnchorRanges = new List<float>();
+
+	[HideInInspector]
+	public List<AnchorDistance> AnchorDistances = new List<AnchorDistance> ();
+
 	private Queue<float> samples = new Queue<float>();
-	
+
+
 	private AnchorInfoPacket lastPacket;
 
     //Experimentally the natural log function was found to provide the best representation of the
