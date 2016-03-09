@@ -208,6 +208,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Marker: {fileID: 147556, guid: b2e7a3f43162c454f84e009da0459e9b, type: 2}
+  DefaultMarkerRot: 90
   OriginAnchor: {fileID: 219048166}
   Anchors:
   - {fileID: 219048166}
@@ -1177,7 +1178,7 @@ Prefab:
     m_Modifications:
     - target: {fileID: 402250, guid: 0db82a43360ea69458c383edc2204898, type: 2}
       propertyPath: m_LocalPosition.x
-      value: 6.30000019
+      value: 6.17999983
       objectReference: {fileID: 0}
     - target: {fileID: 402250, guid: 0db82a43360ea69458c383edc2204898, type: 2}
       propertyPath: m_LocalPosition.y
@@ -1185,7 +1186,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 402250, guid: 0db82a43360ea69458c383edc2204898, type: 2}
       propertyPath: m_LocalPosition.z
-      value: .289999992
+      value: -.170000002
       objectReference: {fileID: 0}
     - target: {fileID: 402250, guid: 0db82a43360ea69458c383edc2204898, type: 2}
       propertyPath: m_LocalRotation.x

@@ -6,6 +6,7 @@ using AnchorDistance = AnchorScript.AnchorDistance;
 public class Survey : MonoBehaviour {
 
 	public GameObject Marker;
+	public float DefaultMarkerRot = 90f;
 	public GameObject OriginAnchor;
 	public List<GameObject> Anchors;
 
@@ -40,6 +41,7 @@ public class Survey : MonoBehaviour {
 
 	public void DoFirstSurvey() {
 		SurveyFirstThree (OriginAnchor);
+		markerGroup.transform.Rotate(new Vector3(0, DefaultMarkerRot, 0));
 	}
 
 	public void DoNextSurvey() {
@@ -80,7 +82,6 @@ public class Survey : MonoBehaviour {
 		// Calculate the position of c .. rotate from ab .. two possibilities
 		// Get the pos of one possibility, check it's distance from another known anchor not involved in this tri.
 		// If the distance is wrong, change the sign of the angle and re-compute.
-
 		Vector3 cPos = CalculatePosition (a0scr.SurveyMarker, b0.anchor.SurveyMarker, ac, angle);
 
 		GameObject xGo = Anchors.Find (delegate(GameObject obj) {
@@ -92,10 +93,10 @@ public class Survey : MonoBehaviour {
 			}
 			return false;
 		});
-
 		AnchorScript xAs = xGo.GetComponent<AnchorScript> ();
 		float cxDist = (cPos - xAs.SurveyMarker.transform.position).magnitude;
 		AnchorDistance x0 = c0scr.AnchorDistances.Find ((AnchorDistance obj) => obj.anchor.gameObject.name == xGo.name);
+
 		if (Mathf.Abs(cxDist - x0.distance) > 1f) {
 			// Distance is wrong, flip the angle
 			Debug.Log("Flipping angle!");
@@ -103,7 +104,7 @@ public class Survey : MonoBehaviour {
 		}
 
 		c0scr.IsSurveyed = true;
-		CreateMaker (cPos);
+		c0scr.SurveyMarker = CreateMaker (cPos);
 	}
 
 	private void SurveyFirstThree(GameObject a0) {
@@ -155,7 +156,7 @@ public class Survey : MonoBehaviour {
 		foreach (AnchorDistance ad in anchorDistances) {
 			if (mustBeSurveyed == true && ad.anchor.IsSurveyed == false)
 				continue;
-			if (excludeOrigin == true && ad.anchor.GetInstanceID() == OriginAnchor.GetInstanceID())
+			if (excludeOrigin == true && ad.anchor.gameObject.GetInstanceID() == OriginAnchor.GetInstanceID())
 				continue;
 			float f = ad.distance;
 			if (f > min && f < a1range) {
