@@ -11,6 +11,7 @@ public class AnchorScript : MonoBehaviour {
 	}
 
 	public bool IsSurveyed = false;
+	public GameObject SurveyMarker = null;
 	public bool DisplayRange = false;
 	public bool IsRanging = false;
 	public float RangeOffset = 0.0f;
