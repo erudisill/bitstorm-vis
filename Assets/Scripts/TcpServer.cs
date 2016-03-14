@@ -19,7 +19,9 @@ public class TcpServer : MonoBehaviour {
 
 	public delegate void PacketPositionEvent(string tagID, Vector3 pos);
 	public event PacketPositionEvent OnPacketPositionSent;
-	
+
+	private Survey surveyScript;
+
 	Thread startThread;
 
     TcpListener myList;
@@ -33,6 +35,9 @@ public class TcpServer : MonoBehaviour {
     public string number; 
 
     void Start() {
+
+		surveyScript = GetComponent<Survey> ();
+
         //TCP Server will lock up Unity if not started
         //in its own thread
         startThread = new Thread(new ThreadStart(StartServer));
@@ -87,7 +92,11 @@ public class TcpServer : MonoBehaviour {
     }
 
 	void ParsePacket(string cvsString) {
-		if (cvsString.StartsWith ("*")) {
+		if (cvsString.StartsWith("* A")) {
+			AnchorReport(cvsString);
+		} else if (cvsString.StartsWith ("* S")) {
+			SurveyReport (cvsString);
+		} else if (cvsString.StartsWith ("*")) {
 			ParseRangeReportPacket (cvsString);
 		} else if (cvsString.StartsWith ("#")) {
 			ParsePositionPacket (cvsString);
@@ -124,6 +133,41 @@ public class TcpServer : MonoBehaviour {
 			results.Add(r);
 		}
 		OnPacketSent(tagid, results);
+	}
+
+	void AnchorReport(string csvString) {
+		string[] parts = csvString.Split (' ');
+		if (parts.Length != 4) {
+			Debug.LogError("Bad format: " + csvString);
+			return;
+		}
+		string anchorId = parts [2];
+		string coordId = parts [3];
+		Debug.Log("Anchor report from " + anchorId + " says coordinator is " + coordId);
+		surveyScript.SubmitAnchor (anchorId);
+	}
+
+	void SurveyReport(string csvString) {
+		string[] parts = csvString.Split (' ');
+		if (parts.Length != 6) {
+			Debug.LogError("Bad format: " + csvString);
+			return;
+		}
+		string anchorId = parts [2];
+		string targetId = parts [3];
+		float dist = float.Parse (parts [4]);
+		int errors = int.Parse (parts [5]);
+		Debug.Log("Surveyed distance from " + anchorId + " to " + targetId + " is " + dist.ToString("0.00m") + " with " + errors.ToString() + " errors");
+		surveyScript.SubmitSurveyResult (anchorId, targetId, dist, errors);
+	}
+
+	public void SendSurveyRequest(string anchorId, string targetId, int reps, int periodms) {
+		if (socket != null) {
+			string msg = "r " + anchorId + " " + targetId + " " + reps.ToString() + " " + periodms.ToString() + "\r";
+			byte[] buf = ASCIIEncoding.ASCII.GetBytes(msg);
+			socket.Send(buf);
+			Debug.Log("Sent " + msg);
+		}
 	}
 
 }

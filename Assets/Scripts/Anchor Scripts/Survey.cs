@@ -1,43 +1,117 @@
 using UnityEngine;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using AnchorDistance = AnchorScript.AnchorDistance;
 
 public class Survey : MonoBehaviour {
 
+	public GameObject AnchorPrefab = null;
 	public GameObject Marker;
 	public float DefaultMarkerRot = 90f;
 	public GameObject OriginAnchor;
-	public List<GameObject> Anchors;
+	public List<GameObject> Anchors = new List<GameObject>();
+	public bool Simulate = false;
+	public List<string> AnchorIds = new List<string> ();
+
 
 	private GameObject markerGroup = null;
+	private TcpServer tcpServerScript = null;
+
+	public readonly static Queue<Action> ExecuteOnMainThread = new Queue<Action>();
+
+	private string anchorSurveyId = string.Empty;
+	private string targetSurveyId = string.Empty;
+	private float anchorSurveyDist = 0f;
+
+	private enum SurveyStatus {
+		None,
+		Running,
+		Complete
+	}
+	private SurveyStatus surveyStatus = SurveyStatus.None;
 
 	// Use this for initialization
 	void Start () {
 		// Create matrix of ranges .. Normally, this would come in from the field
 		// but for simulation sake, just calculate magnitude between each anchor.
 
-		foreach (GameObject g1 in Anchors) {
-			AnchorScript g1as = g1.GetComponent<AnchorScript>();
-			foreach (GameObject g2 in Anchors) { 
-				//TODO: Use sqrMagnitude for quicker math later
-				float dist = (g1.transform.position - g2.transform.position).magnitude;
+		if (Simulate) {
+			foreach (GameObject g1 in Anchors) {
+				AnchorScript g1as = g1.GetComponent<AnchorScript> ();
+				foreach (GameObject g2 in Anchors) { 
+					//TODO: Use sqrMagnitude for quicker math later
+					float dist = (g1.transform.position - g2.transform.position).magnitude;
 
-				AnchorDistance ad = new AnchorDistance();
-				ad.anchor = g2.GetComponent<AnchorScript>();
-				ad.distance = dist;
-				g1as.AnchorDistances.Add(ad);
+					AnchorDistance ad = new AnchorDistance ();
+					ad.anchor = g2.GetComponent<AnchorScript> ();
+					ad.distance = dist;
+					g1as.AnchorDistances.Add (ad);
 
-				ad.anchor.IsSurveyed = false;
+					ad.anchor.IsSurveyed = false;
+				}
 			}
+		} else {
+			Anchors.Clear ();
+			OriginAnchor = null;
 		}
 
 		// Create the group to hold the markers
 		markerGroup = new GameObject ();
 		markerGroup.name = "Markers";
-		markerGroup.transform.position = OriginAnchor.transform.position;;
+		markerGroup.transform.position = Vector3.zero;
 		markerGroup.transform.rotation = Quaternion.identity;
+
+		tcpServerScript = GetComponent<TcpServer> ();
 	}
+
+	void Update() {
+		while (ExecuteOnMainThread.Count > 0) {
+			ExecuteOnMainThread.Dequeue().Invoke();
+		}
+	}
+
+	public void SubmitAllAnchors() {
+		foreach (string a in AnchorIds) {
+			DoSubmitAnchor(a);
+		}
+	}
+
+	public void SubmitAnchor (string anchorId)
+	{
+		if (AnchorIds.Count == 0) {
+			Survey.ExecuteOnMainThread.Enqueue (() => DoSubmitAnchor (anchorId));
+		}
+	}
+
+	public void SubmitSurveyResult (string anchorId, string targetId, float dist, int errors) {
+		Survey.ExecuteOnMainThread.Enqueue(() => DoSubmitSurveyResult(anchorId, targetId, dist, errors));
+	}
+
+	private void DoSubmitAnchor(string anchorId) {
+		GameObject x = Anchors.Find ((GameObject obj) => obj.name == anchorId);
+		if (x == null) {
+			x = Instantiate<GameObject>(AnchorPrefab);
+			x.name = anchorId;
+			x.transform.position = new Vector3(0 + Anchors.Count, 0.5f, 0);
+			x.transform.rotation = Quaternion.identity;
+			x.transform.parent = markerGroup.transform;
+			Anchors.Add(x);
+		}
+		OriginAnchor = Anchors [0];
+		if (surveyStatus == SurveyStatus.None) {
+			StartCoroutine (GetRanges ());
+		}
+	}
+
+	private void DoSubmitSurveyResult (string anchorId, string targetId, float dist, int errors) {
+		anchorSurveyId = anchorId;
+		targetSurveyId = targetId;
+		anchorSurveyDist = dist;
+		surveyStatus = SurveyStatus.Complete;
+	}
+
+
 
 	public void DoFirstSurvey() {
 		SurveyFirstThree (OriginAnchor);
@@ -133,13 +207,15 @@ public class Survey : MonoBehaviour {
 		Vector3 aPos = a0.transform.position;
 		aPos.y = 1.0f;
 		a0scr.IsSurveyed = true;
-		a0scr.SurveyMarker = CreateMaker (aPos);
+		//a0scr.SurveyMarker = CreateMaker (aPos);
+		a0scr.gameObject.transform.position = aPos;
 		
 		// Calculate position of b - no rotational context, so just align along z axis
 		Vector3 bPos = aPos + (ab * Vector3.forward);
 		bPos.y = 1.0f;
 		b0.anchor.IsSurveyed = true;
-		b0.anchor.SurveyMarker = CreateMaker (bPos);
+//		b0.anchor.SurveyMarker = CreateMaker (bPos);
+		b0.anchor.gameObject.transform.position = bPos;
 		
 		// Calculate position of c - using the angle, extend a directional vector for this final point
 		Vector3 cDir = Quaternion.AngleAxis((angle * Mathf.Rad2Deg), Vector3.up) * Vector3.forward;
@@ -147,7 +223,8 @@ public class Survey : MonoBehaviour {
 		Vector3 cPos = aPos + (ac * cDir);
 		cPos.y = 1.0f;
 		c0.anchor.IsSurveyed = true;
-		c0.anchor.SurveyMarker = CreateMaker (cPos);
+//		c0.anchor.SurveyMarker = CreateMaker (cPos);
+		c0.anchor.gameObject.transform.position = cPos;
 	}
 
 	private AnchorDistance PickCloserThan(List<AnchorDistance> anchorDistances, float min, bool excludeOrigin = true, bool mustBeSurveyed = false) {
@@ -189,6 +266,91 @@ public class Survey : MonoBehaviour {
 		GameObject m = Instantiate (Marker, pos, Quaternion.identity) as GameObject;
 		m.transform.parent = markerGroup.transform;
 		return m;
+	}
+
+	IEnumerator GetRanges() {
+		int i = 0;
+		int j = 0;
+		bool done = false;
+		surveyStatus = SurveyStatus.Running;
+
+		while (done == false) {
+			done = true;
+			i = 0;
+
+			while (i < Anchors.Count) {
+				GameObject go1 = Anchors [i++];	
+				AnchorScript as1 = go1.GetComponent<AnchorScript> ();
+
+				j = 0;
+				while (j < Anchors.Count) {
+					GameObject go2 = Anchors [j++];
+
+					// Don't range with ourselves
+					if (go1.name == go2.name)
+						continue;
+
+					// Don't range if we already have a result
+					AnchorDistance adTest = as1.AnchorDistances.Find ((AnchorDistance obj) => obj.anchor.gameObject.name == go2.name);
+					if (adTest != null)
+						continue;
+
+					// Okay, range!
+					anchorSurveyId = go1.name;
+					targetSurveyId = go2.name;
+					anchorSurveyDist = 0;
+					surveyStatus = SurveyStatus.Running;
+					done = false;
+					tcpServerScript.SendSurveyRequest (go1.name, go2.name, 10, 10);
+
+					// Wait for results
+					float startTime = Time.time;
+					while (surveyStatus == SurveyStatus.Running) {
+						float elapsed = Time.time - startTime;
+						if (elapsed > 5.0f) {
+							Debug.Log ("GetRanges: timeout");
+							break;
+						}
+						yield return null;
+					}
+
+					// If we didn't time out and received a proper distance, add it to the list
+					if (surveyStatus == SurveyStatus.Complete) {
+						if (anchorSurveyDist != 0f) {
+							AnchorDistance ad1 = new AnchorDistance ();
+							ad1.anchor = go2.GetComponent<AnchorScript> ();
+							ad1.distance = anchorSurveyDist;
+							as1.AnchorDistances.Add (ad1);
+							Debug.Log ("Added " + ad1.anchor.gameObject.name + ":" + ad1.distance.ToString ("0.00m") + " to " + as1.gameObject.name);
+
+							// Add the distance to the other anchor's distances as well
+							adTest = ad1.anchor.AnchorDistances.Find ((AnchorDistance obj) => obj.anchor.gameObject.name == go1.name);
+							if (adTest == null) {
+								AnchorDistance ad2 = new AnchorDistance ();
+								ad2.anchor = as1;
+								ad2.distance = ad1.distance;
+								ad1.anchor.AnchorDistances.Add (ad2);
+								Debug.Log ("Added [converse] " + ad2.anchor.gameObject.name + ":" + ad2.distance.ToString ("0.00m") + " to " + ad1.anchor.gameObject.name);
+							}
+						}
+					}
+				}
+			}
+		}
+		surveyStatus = SurveyStatus.None;
+	}
+
+	public void PrintSurveyRanges() {
+		string output = "";
+		foreach (GameObject go in Anchors) {
+			output += go.name + ":";
+			AnchorScript as1 = go.GetComponent<AnchorScript>();
+			foreach (AnchorDistance ad in as1.AnchorDistances) {
+				output += "\t" +  ad.anchor.gameObject.name + ": " + ad.distance.ToString("0.00m");
+			}
+			Debug.Log(output);
+			output = "";
+		}
 	}
 	
 }
