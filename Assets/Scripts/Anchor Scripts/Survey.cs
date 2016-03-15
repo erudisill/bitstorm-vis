@@ -156,7 +156,8 @@ public class Survey : MonoBehaviour {
 		// Calculate the position of c .. rotate from ab .. two possibilities
 		// Get the pos of one possibility, check it's distance from another known anchor not involved in this tri.
 		// If the distance is wrong, change the sign of the angle and re-compute.
-		Vector3 cPos = CalculatePosition (a0scr.SurveyMarker, b0.anchor.SurveyMarker, ac, angle);
+//		Vector3 cPos = CalculatePosition (a0scr.SurveyMarker, b0.anchor.SurveyMarker, ac, angle);
+		Vector3 cPos = CalculatePosition (a0scr.gameObject, b0.anchor.gameObject, ac, angle);
 
 		GameObject xGo = Anchors.Find (delegate(GameObject obj) {
 			if (obj.GetComponent<AnchorScript>().IsSurveyed) {
@@ -168,17 +169,20 @@ public class Survey : MonoBehaviour {
 			return false;
 		});
 		AnchorScript xAs = xGo.GetComponent<AnchorScript> ();
-		float cxDist = (cPos - xAs.SurveyMarker.transform.position).magnitude;
+//		float cxDist = (cPos - xAs.SurveyMarker.transform.position).magnitude;
+		float cxDist = (cPos - xAs.gameObject.transform.position).magnitude;
 		AnchorDistance x0 = c0scr.AnchorDistances.Find ((AnchorDistance obj) => obj.anchor.gameObject.name == xGo.name);
 
 		if (Mathf.Abs(cxDist - x0.distance) > 1f) {
 			// Distance is wrong, flip the angle
 			Debug.Log("Flipping angle!");
-			cPos = CalculatePosition (a0scr.SurveyMarker, b0.anchor.SurveyMarker, ac, angle * (-1));
+//			cPos = CalculatePosition (a0scr.SurveyMarker, b0.anchor.SurveyMarker, ac, angle * (-1));
+			cPos = CalculatePosition (a0scr.gameObject, b0.anchor.gameObject, ac, angle * (-1));
 		}
 
 		c0scr.IsSurveyed = true;
-		c0scr.SurveyMarker = CreateMaker (cPos);
+//		c0scr.SurveyMarker = CreateMaker (cPos);
+		c0scr.gameObject.transform.position = cPos;
 	}
 
 	private void SurveyFirstThree(GameObject a0) {

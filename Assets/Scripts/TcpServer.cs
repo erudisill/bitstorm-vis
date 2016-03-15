@@ -121,18 +121,26 @@ public class TcpServer : MonoBehaviour {
 	void ParseRangeReportPacket(string csvString) {
 		// * 616A 57BB:0.58 44E8:1.49 B21A:1.14 ...
 		string[] parts = csvString.Split(' ');
-		//		print ("ParsePacket: " + csvString);
-		
+
+		if (parts.Length < 3) {
+			Debug.LogError("Bad format: " + csvString);
+			return;
+		}
+
 		string tagid = parts[1];
 		List<AnchorRange> results = new List<AnchorRange>();
 		for (int i = 2; i < parts.Length; i++) {
 			string[] ranges = parts[i].Split(':');
+			if (ranges.Length != 2) {
+				Debug.Log("Bad format: " + csvString);
+				return;
+			}
 			AnchorRange r = new AnchorRange();
 			r.id = ranges[0];
 			r.dist = Double.Parse(ranges[1]);
 			results.Add(r);
 		}
-		OnPacketSent(tagid, results);
+		OnPacketSent(tagid, results); 
 	}
 
 	void AnchorReport(string csvString) {
@@ -144,7 +152,8 @@ public class TcpServer : MonoBehaviour {
 		string anchorId = parts [2];
 		string coordId = parts [3];
 		Debug.Log("Anchor report from " + anchorId + " says coordinator is " + coordId);
-		surveyScript.SubmitAnchor (anchorId);
+		if (surveyScript != null) 
+			surveyScript.SubmitAnchor (anchorId);
 	}
 
 	void SurveyReport(string csvString) {
@@ -158,7 +167,8 @@ public class TcpServer : MonoBehaviour {
 		float dist = float.Parse (parts [4]);
 		int errors = int.Parse (parts [5]);
 		Debug.Log("Surveyed distance from " + anchorId + " to " + targetId + " is " + dist.ToString("0.00m") + " with " + errors.ToString() + " errors");
-		surveyScript.SubmitSurveyResult (anchorId, targetId, dist, errors);
+		if (surveyScript != null) 
+			surveyScript.SubmitSurveyResult (anchorId, targetId, dist, errors);
 	}
 
 	public void SendSurveyRequest(string anchorId, string targetId, int reps, int periodms) {
