@@ -8,6 +8,8 @@ public class LocationEngine2D : MonoBehaviour {
 
 	TcpServer tcpServer; 
 
+	public GameObject TagPrefab;
+
 	public bool UseFilteredDistance = false;
 
     public readonly static Queue<Action> ExecuteOnMainThread = new Queue<Action>();
@@ -70,7 +72,11 @@ public class LocationEngine2D : MonoBehaviour {
             packet.tagID = tagId;
             packet.timeDelay = d / Constants.SPEED_OF_LIGHT;
             packet.distance = d;
-            packet.anchorLocation = GameObject.FindGameObjectsWithTag(TagDefs.ANCHOR_TAG).First(obj => obj.name == packet.anchorID).transform.position;
+			try {
+            	packet.anchorLocation = GameObject.FindGameObjectsWithTag(TagDefs.ANCHOR_TAG).First(obj => obj.name == packet.anchorID).transform.position;
+			} catch(Exception) {
+				Debug.LogError("Unknown anchor id: " + packet.anchorID);
+			}
 
 			GameObject anchorObject = (GameObject)GameObject.Find(packet.anchorID);
 			packet.anchorScript = anchorObject.GetComponent<AnchorScript>();
@@ -108,7 +114,19 @@ public class LocationEngine2D : MonoBehaviour {
 
 		Vector3 newTagPosition = CalculateTagPositionByPackets(packets);
 
-        GameObject tag = GameObject.FindGameObjectsWithTag(TagDefs.TAG_TAG).Where(t => tagID == t.name).First();
+		GameObject tag = null;
+
+        try {
+		tag = GameObject.FindGameObjectsWithTag(TagDefs.TAG_TAG).Where(t => tagID == t.name).First();
+		} catch(Exception) {
+		}
+
+
+		if (tag == null) {
+			tag = Instantiate(TagPrefab, new Vector3(0,0.5f,0), Quaternion.identity) as GameObject;
+			tag.name = tagID;
+		}
+
 
 //        CPTagPositioner tagScript = (CPTagPositioner)tag.GetComponent(typeof(CPTagPositioner));
 //        if(tagScript != null) {

@@ -1278,6 +1278,10 @@ Prefab:
       propertyPath: m_LocalPosition.z
       value: -0
       objectReference: {fileID: 0}
+    - target: {fileID: 10864156, guid: b6f03a32f084845d1ace2447196185b1, type: 2}
+      propertyPath: m_BounceIntensity
+      value: .790000021
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: b6f03a32f084845d1ace2447196185b1, type: 2}
   m_IsPrefabParent: 0
