@@ -338,7 +338,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 10864156, guid: b6f03a32f084845d1ace2447196185b1, type: 2}
       propertyPath: m_SpotAngle
-      value: 33.9000015
+      value: 32
       objectReference: {fileID: 0}
     - target: {fileID: 175934, guid: b6f03a32f084845d1ace2447196185b1, type: 2}
       propertyPath: m_IsActive
@@ -388,7 +388,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 192606, guid: 0db82a43360ea69458c383edc2204898, type: 2}
       propertyPath: m_Name
-      value: 27BB
+      value: 44E8
       objectReference: {fileID: 0}
     - target: {fileID: 0}
       propertyPath: m_Enabled
@@ -654,7 +654,7 @@ Prefab:
       objectReference: {fileID: 438140643}
     - target: {fileID: 192606, guid: 0db82a43360ea69458c383edc2204898, type: 2}
       propertyPath: m_Name
-      value: E937
+      value: 6518
       objectReference: {fileID: 0}
     - target: {fileID: 457088, guid: 0db82a43360ea69458c383edc2204898, type: 2}
       propertyPath: m_LocalPosition.z
@@ -748,7 +748,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 192606, guid: 0db82a43360ea69458c383edc2204898, type: 2}
       propertyPath: m_Name
-      value: C825
+      value: B21A
       objectReference: {fileID: 0}
     - target: {fileID: 0}
       propertyPath: m_Enabled
@@ -1043,7 +1043,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 192606, guid: 0db82a43360ea69458c383edc2204898, type: 2}
       propertyPath: m_Name
-      value: CD1F
+      value: E0BB
       objectReference: {fileID: 0}
     - target: {fileID: 0}
       propertyPath: m_Enabled
