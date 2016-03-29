@@ -14,7 +14,9 @@ GameObject:
   - 54: {fileID: 5460872}
   - 114: {fileID: 11483036}
   - 114: {fileID: 11458358}
-  m_Layer: 0
+  - 135: {fileID: 13523240}
+  - 114: {fileID: 11489766}
+  m_Layer: 9
   m_Name: CPTag
   m_TagString: CPTag
   m_Icon: {fileID: 0}
@@ -113,6 +115,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9abe258925a2d94488ed1bf19abbb219, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &11489766
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 124042}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cde21621908441c4911ce545f0711a6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SmoothnessFactor: .5
+--- !u!135 &13523240
+SphereCollider:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 124042}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 1
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &100100000
 Prefab:
   m_ObjectHideFlags: 1
