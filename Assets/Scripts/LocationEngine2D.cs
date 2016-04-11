@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections.Generic;
 using System.Linq;
 using System;
@@ -10,13 +11,19 @@ public class LocationEngine2D : MonoBehaviour {
 
 	public GameObject TagPrefab;
 
+	public GameObject LastReportTextObject;
+
 	public bool UseFilteredDistance = false;
 
     public readonly static Queue<Action> ExecuteOnMainThread = new Queue<Action>();
 
+	private Text textComponent;
+
     // Use this for initialization
     void Awake() {
 		tcpServer = GetComponent<TcpServer> ();
+		if (LastReportTextObject != null)
+			textComponent = LastReportTextObject.GetComponent<Text> ();
     }
 
     void Update() {
@@ -61,6 +68,10 @@ public class LocationEngine2D : MonoBehaviour {
 		
 	}
     void ProcessRangeReport(string tagId, List<TcpServer.AnchorRange> ranges) {
+
+		if (textComponent != null) {
+			textComponent.text = DateTime.Now.ToLongTimeString();
+		}
 
 		// Build and process all packets based on ranges
         List<AnchorInfoPacket> packets = new List<AnchorInfoPacket>();
