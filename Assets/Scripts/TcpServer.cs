@@ -50,6 +50,9 @@ public class TcpServer : MonoBehaviour {
     }
 
     private void stopThread(Thread thread) {
+		if (thread == null)
+			return;
+
         if (thread.IsAlive) {
             thread.Abort();
         }

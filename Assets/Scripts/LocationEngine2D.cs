@@ -8,6 +8,7 @@ using Vectrosity;
 public class LocationEngine2D : MonoBehaviour { 
 
 	TcpServer tcpServer; 
+	TcpClient tcpClient;
 
 	public GameObject TagPrefab;
 
@@ -22,6 +23,7 @@ public class LocationEngine2D : MonoBehaviour {
     // Use this for initialization
     void Awake() {
 		tcpServer = GetComponent<TcpServer> ();
+		tcpClient = GetComponent<TcpClient> ();
 		if (LastReportTextObject != null)
 			textComponent = LastReportTextObject.GetComponent<Text> ();
     }
@@ -38,6 +40,10 @@ public class LocationEngine2D : MonoBehaviour {
             tcpServer.OnPacketSent += PacketEventHandler;
 			tcpServer.OnPacketPositionSent += HandleOnPacketPositionSent;
         }
+		if (tcpClient != null) {
+			print ("LocationEngine2D: Adding TcpClient '" + tcpClient.gameObject.name + "'");
+			tcpClient.OnPacketPositionSent += HandleOnPacketPositionSent;
+		}
     }
 
     void OnDisable() {
@@ -46,6 +52,10 @@ public class LocationEngine2D : MonoBehaviour {
 			tcpServer.OnPacketSent -= PacketEventHandler;
 			tcpServer.OnPacketPositionSent -= HandleOnPacketPositionSent;
         }
+		if (tcpClient != null) {
+			print("LocationEngine2D: Removing TcpClient '" + tcpClient.gameObject.name + "'");
+			tcpClient.OnPacketPositionSent -= HandleOnPacketPositionSent;
+		}
     }
 
 	void HandleOnPacketPositionSent (string tagID, Vector3 pos)
@@ -59,8 +69,14 @@ public class LocationEngine2D : MonoBehaviour {
 
 	void ProcessPosition (string tagID, Vector3 pos)
 	{
-		GameObject tag = GameObject.FindGameObjectsWithTag(TagDefs.TAG_TAG).Where(t => tagID == t.name).First();
-		
+		GameObject tag = null;
+		try {
+			tag = GameObject.FindGameObjectsWithTag(TagDefs.TAG_TAG).Where(t => tagID == t.name).First();
+		} catch(Exception) {
+			tag = Instantiate(TagPrefab, new Vector3(0,0.5f,0), Quaternion.identity) as GameObject;
+			tag.name = tagID;
+		}
+
 		TagMove tagScript = tag.GetComponent<TagMove> ();
 		if(tagScript != null) {
 			tagScript.Move(pos);
