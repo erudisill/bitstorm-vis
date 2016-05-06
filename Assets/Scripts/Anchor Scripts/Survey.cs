@@ -3,17 +3,23 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using AnchorDistance = AnchorScript.AnchorDistance;
+using UnityEngine.UI;
 
 public class Survey : MonoBehaviour {
 
 	public GameObject AnchorPrefab = null;
+	public GameObject AnchorLabelPrefab;
 	public GameObject Marker;
+	public int RangeReps = 10;
+	public int RangeDelayMs = 10;
+	public float RangeTimeout = 1.0f;
 	public float DefaultMarkerRot = 90f;
 	public GameObject OriginAnchor;
 	public List<GameObject> Anchors = new List<GameObject>();
+	public List<GameObject> SurveyMarkers = new List<GameObject> ();
 	public bool Simulate = false;
+	public bool UseAnchorIds = false;
 	public List<string> AnchorIds = new List<string> ();
-
 
 	private GameObject markerGroup = null;
 	private TcpServer tcpServerScript = null;
@@ -23,6 +29,8 @@ public class Survey : MonoBehaviour {
 	private string anchorSurveyId = string.Empty;
 	private string targetSurveyId = string.Empty;
 	private float anchorSurveyDist = 0f;
+
+	private float prevSliderValue = 0;
 
 	private enum SurveyStatus {
 		None,
@@ -35,6 +43,10 @@ public class Survey : MonoBehaviour {
 	void Start () {
 		// Create matrix of ranges .. Normally, this would come in from the field
 		// but for simulation sake, just calculate magnitude between each anchor.
+
+		if (UseAnchorIds == false) {
+			AnchorIds.Clear();
+		}
 
 		if (Simulate) {
 			foreach (GameObject g1 in Anchors) {
@@ -90,18 +102,28 @@ public class Survey : MonoBehaviour {
 
 	private void DoSubmitAnchor(string anchorId) {
 		GameObject x = Anchors.Find ((GameObject obj) => obj.name == anchorId);
-		if (x == null) {
-			x = Instantiate<GameObject>(AnchorPrefab);
-			x.name = anchorId;
-			x.transform.position = new Vector3(0 + Anchors.Count, 0.5f, 0);
-			x.transform.rotation = Quaternion.identity;
-			x.transform.parent = markerGroup.transform;
-			Anchors.Add(x);
-		}
+		if (x != null)
+			return;
+
+		GameObject go = Instantiate<GameObject>(AnchorLabelPrefab);
+		go.GetComponent<TextMesh> ().text = anchorId;
+		go.name = anchorId;
+		AnchorLabelScript s = go.GetComponent <AnchorLabelScript>();
+
+		x = Instantiate<GameObject>(AnchorPrefab);
+		x.name = anchorId;
+		x.transform.position = new Vector3(0 + Anchors.Count, 0.5f, 0);
+		x.transform.rotation = Quaternion.identity;
+		x.transform.parent = markerGroup.transform;
+		s.transform.parent = x.transform;
+		s.target = x.transform;
+		Anchors.Add(x);
+
 		OriginAnchor = Anchors [0];
 		if (surveyStatus == SurveyStatus.None) {
 			StartCoroutine (GetRanges ());
 		}
+
 	}
 
 	private void DoSubmitSurveyResult (string anchorId, string targetId, float dist, int errors) {
@@ -115,7 +137,8 @@ public class Survey : MonoBehaviour {
 
 	public void DoFirstSurvey() {
 		SurveyFirstThree (OriginAnchor);
-		markerGroup.transform.Rotate(new Vector3(0, DefaultMarkerRot, 0));
+		//markerGroup.transform.Rotate(new Vector3(0, DefaultMarkerRot, 0));
+		markerGroup.transform.Rotate(new Vector3(0, 0, 0));
 	}
 
 	public void DoNextSurvey() {
@@ -183,6 +206,7 @@ public class Survey : MonoBehaviour {
 		c0scr.IsSurveyed = true;
 //		c0scr.SurveyMarker = CreateMaker (cPos);
 		c0scr.gameObject.transform.position = cPos;
+		SurveyMarkers.Add (c0scr.gameObject);
 	}
 
 	private void SurveyFirstThree(GameObject a0) {
@@ -213,6 +237,7 @@ public class Survey : MonoBehaviour {
 		a0scr.IsSurveyed = true;
 		//a0scr.SurveyMarker = CreateMaker (aPos);
 		a0scr.gameObject.transform.position = aPos;
+		SurveyMarkers.Add (a0scr.gameObject);
 		
 		// Calculate position of b - no rotational context, so just align along z axis
 		Vector3 bPos = aPos + (ab * Vector3.forward);
@@ -220,6 +245,7 @@ public class Survey : MonoBehaviour {
 		b0.anchor.IsSurveyed = true;
 //		b0.anchor.SurveyMarker = CreateMaker (bPos);
 		b0.anchor.gameObject.transform.position = bPos;
+		SurveyMarkers.Add (b0.anchor.gameObject);
 		
 		// Calculate position of c - using the angle, extend a directional vector for this final point
 		Vector3 cDir = Quaternion.AngleAxis((angle * Mathf.Rad2Deg), Vector3.up) * Vector3.forward;
@@ -229,6 +255,7 @@ public class Survey : MonoBehaviour {
 		c0.anchor.IsSurveyed = true;
 //		c0.anchor.SurveyMarker = CreateMaker (cPos);
 		c0.anchor.gameObject.transform.position = cPos;
+		SurveyMarkers.Add (c0.anchor.gameObject);
 	}
 
 	private AnchorDistance PickCloserThan(List<AnchorDistance> anchorDistances, float min, bool excludeOrigin = true, bool mustBeSurveyed = false) {
@@ -305,13 +332,13 @@ public class Survey : MonoBehaviour {
 					anchorSurveyDist = 0;
 					surveyStatus = SurveyStatus.Running;
 					done = false;
-					tcpServerScript.SendSurveyRequest (go1.name, go2.name, 10, 10);
+					tcpServerScript.SendSurveyRequest (go1.name, go2.name, RangeReps, RangeDelayMs);
 
 					// Wait for results
 					float startTime = Time.time;
 					while (surveyStatus == SurveyStatus.Running) {
 						float elapsed = Time.time - startTime;
-						if (elapsed > 5.0f) {
+						if (elapsed > RangeTimeout) {
 							Debug.Log ("GetRanges: timeout");
 							break;
 						}
@@ -356,5 +383,63 @@ public class Survey : MonoBehaviour {
 			output = "";
 		}
 	}
+
+	public void FlipAnchorsOnZ(){
+
+		markerGroup.transform.Rotate (new Vector3 (0, 0, 180f));
+
+		Vector3 newPosition;
+		newPosition = markerGroup.transform.position;
+		newPosition.y = 1;
+		markerGroup.transform.position = newPosition;
+
+		CenterCamera ();
+		Slider s =  GameObject.Find("Slider").GetComponent<UnityEngine.UI.Slider>();
+		s.value = 0;
+	}
+
+	public void FlipAnchorsOnX(){
+		
+		markerGroup.transform.Rotate (new Vector3 (180f, 0, 0));
+
+
+		Vector3 newPosition;
+		newPosition = markerGroup.transform.position;
+		newPosition.y = 1;
+		markerGroup.transform.position = newPosition;
+		
+		CenterCamera ();
+//		Slider s =  GameObject.Find("Slider").GetComponent<UnityEngine.UI.Slider>();
+//		s.value = 0;
+	}
 	
+	public void CenterCamera(){
+		Camera mainCam;
+		mainCam = Camera.main;
+
+		Vector3 groupVectors = new Vector3();
+		Vector3 center;
+
+		foreach (GameObject go in SurveyMarkers) {
+			groupVectors += go.transform.position;
+		}
+
+		center = groupVectors / SurveyMarkers.Count;
+		center.y = (groupVectors.magnitude * 2f) / SurveyMarkers.Count + 5;
+
+		mainCam.transform.position = center;
+	}
+
+	public void RotateMarkers(Slider slider)
+	{
+//		markerGroup.transform.rotation = Quaternion.Euler(markerGroup.transform.rotation.x, slider.value, markerGroup.transform.rotation.z);
+//		float ry = slider.value - (markerGroup.transform.rotation.y * Mathf.Rad2Deg);
+//		Debug.Log("markerGroup: " + (markerGroup.transform.rotation.y * Mathf.Rad2Deg) + "   slider: " + slider.value + "   ry: " + ry);
+//		markerGroup.transform.Rotate(new Vector3(0, ry, 0));
+
+		float ry = slider.value - prevSliderValue;
+		prevSliderValue = slider.value;
+		markerGroup.transform.Rotate(new Vector3(0, ry, 0));
+
+	}
 }

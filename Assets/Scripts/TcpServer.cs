@@ -109,6 +109,9 @@ public class TcpServer : MonoBehaviour {
 	}
 
 	void ParsePositionPacket(string csvString) {
+		if (OnPacketPositionSent == null)
+			return;
+
         string[] parts = csvString.Split(' ');
 
 		string tagid = parts[1];
@@ -142,8 +145,11 @@ public class TcpServer : MonoBehaviour {
 			r.id = ranges[0];
 			r.dist = Double.Parse(ranges[1]);
 			results.Add(r);
+			if (surveyScript != null)
+				surveyScript.SubmitAnchor(r.id);
 		}
-		OnPacketSent(tagid, results); 
+		if (OnPacketSent != null)
+			OnPacketSent(tagid, results); 
 	}
 
 	void AnchorReport(string csvString) {
