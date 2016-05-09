@@ -9,6 +9,7 @@ public class Survey : MonoBehaviour {
 
 	public GameObject AnchorPrefab = null;
 	public GameObject AnchorLabelPrefab;
+	public int NumAnchors = 4;
 	public GameObject Marker;
 	public int RangeReps = 10;
 	public int RangeDelayMs = 10;
@@ -120,7 +121,7 @@ public class Survey : MonoBehaviour {
 		Anchors.Add(x);
 
 		OriginAnchor = Anchors [0];
-		if (surveyStatus == SurveyStatus.None) {
+		if (Anchors.Count == NumAnchors && surveyStatus == SurveyStatus.None) {
 			StartCoroutine (GetRanges ());
 		}
 
@@ -369,6 +370,10 @@ public class Survey : MonoBehaviour {
 			}
 		}
 		surveyStatus = SurveyStatus.None;
+		Survey.ExecuteOnMainThread.Enqueue (() => DoFirstSurvey ());
+		Survey.ExecuteOnMainThread.Enqueue (() => DoNextSurvey ());
+		Survey.ExecuteOnMainThread.Enqueue (() => CenterCamera ());
+
 	}
 
 	public void PrintSurveyRanges() {
@@ -409,8 +414,6 @@ public class Survey : MonoBehaviour {
 		markerGroup.transform.position = newPosition;
 		
 		CenterCamera ();
-//		Slider s =  GameObject.Find("Slider").GetComponent<UnityEngine.UI.Slider>();
-//		s.value = 0;
 	}
 	
 	public void CenterCamera(){
@@ -432,11 +435,6 @@ public class Survey : MonoBehaviour {
 
 	public void RotateMarkers(Slider slider)
 	{
-//		markerGroup.transform.rotation = Quaternion.Euler(markerGroup.transform.rotation.x, slider.value, markerGroup.transform.rotation.z);
-//		float ry = slider.value - (markerGroup.transform.rotation.y * Mathf.Rad2Deg);
-//		Debug.Log("markerGroup: " + (markerGroup.transform.rotation.y * Mathf.Rad2Deg) + "   slider: " + slider.value + "   ry: " + ry);
-//		markerGroup.transform.Rotate(new Vector3(0, ry, 0));
-
 		float ry = slider.value - prevSliderValue;
 		prevSliderValue = slider.value;
 		markerGroup.transform.Rotate(new Vector3(0, ry, 0));

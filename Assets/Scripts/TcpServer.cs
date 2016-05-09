@@ -189,4 +189,13 @@ public class TcpServer : MonoBehaviour {
 		}
 	}
 
+	public void SendAnchorDiscovery() {
+		if (socket != null) {
+			string msg = "a \r";
+			byte[] buf = ASCIIEncoding.ASCII.GetBytes(msg);
+			socket.Send(buf);
+			Debug.Log("Sent " + msg);
+		}
+	}
+
 }
