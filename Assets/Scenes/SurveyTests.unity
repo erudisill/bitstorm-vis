@@ -312,6 +312,7 @@ GameObject:
   - 114: {fileID: 264038899}
   - 114: {fileID: 264038901}
   - 114: {fileID: 264038902}
+  - 114: {fileID: 264038903}
   m_Layer: 0
   m_Name: SceneManager
   m_TagString: Untagged
@@ -371,7 +372,7 @@ MonoBehaviour:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 264038898}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c187a519915c4c843a5258560c0b81bb, type: 3}
   m_Name: 
@@ -392,6 +393,20 @@ MonoBehaviour:
   TagPrefab: {fileID: 124042, guid: 2c46e41354aed1e479f6cdbdb2c473f0, type: 2}
   LastReportTextObject: {fileID: 0}
   UseFilteredDistance: 0
+--- !u!114 &264038903
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 264038898}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: adc49634e206149c185c4413f9aa8386, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  IP: 10.0.0.227
+  Port: 9901
+  Timeout: 5000
 --- !u!4 &285927812 stripped
 Transform:
   m_PrefabParentObject: {fileID: 402250, guid: 0db82a43360ea69458c383edc2204898, type: 2}
