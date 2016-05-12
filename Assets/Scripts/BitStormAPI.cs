@@ -106,5 +106,28 @@ public class BitStormAPI : MonoBehaviour
 
         LastResult = w.text;
     }
+
+    public IEnumerator DoUpdateAnchor(string anchorId, Vector3 position)
+    {
+        System.Text.UTF8Encoding encoding = new System.Text.UTF8Encoding();
+        Dictionary<string, string> postHeader = new Dictionary<string, string>();
+
+        postHeader.Add("Content-Type", "application/json");
+
+        //string postData = string.Format("{'anchorid':'{0}', 'position':[{1},{2},{3}]}", anchorId, position.x.ToString(), position.y.ToString(), position.z.ToString());
+        string postData = "{\"anchorid\":\"" + anchorId + "\",\"position\":[" + position.x.ToString() + "," + position.y.ToString() + "," + position.z + "]}";
+
+
+        Debug.Log("DoUpdateAnchor: " + postData);
+        WWW w = new WWW("http://10.0.0.227:9902/anchor/", encoding.GetBytes(postData), postHeader);
+        yield return w;
+
+        if (!string.IsNullOrEmpty(w.error))
+        {
+            Debug.LogError(w.error);
+            Debug.LogError(w.text);
+            yield return false;
+        }
+    }
 }
 

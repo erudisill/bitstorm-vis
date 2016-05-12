@@ -20,12 +20,12 @@ public class AnchorLabelScript : MonoBehaviour {
 //		offset.y = 0f;
 //		offset.z = 0.5f;
 		thisTransform = transform;
-		thisTransform.rotation = Quaternion.Euler (90, 90, 0);
+		thisTransform.rotation = Quaternion.Euler (90, 0, 0);
 	}
 
 	void Update()
 	{
 		thisTransform.position = target.position + offset;
-		thisTransform.rotation = Quaternion.Euler (90, 90, 0);
+		thisTransform.rotation = Quaternion.Euler (90, 0, 0);
 	}
 }

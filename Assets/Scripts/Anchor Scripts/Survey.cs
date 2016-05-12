@@ -104,6 +104,19 @@ public class Survey : MonoBehaviour {
 		Survey.ExecuteOnMainThread.Enqueue(() => DoSubmitSurveyResult(anchorId, targetId, dist, errors));
 	}
 
+    public void UpdateServerAnchors()
+    {
+        StartCoroutine(DoUpdateServerAnchors());
+    }
+
+    private IEnumerator DoUpdateServerAnchors()
+    {
+        foreach (GameObject go in Anchors)
+        {
+            yield return bitstormScript.DoUpdateAnchor(go.name, go.transform.position);
+        }
+    }
+
 	private void DoSubmitAnchor(string anchorId) {
 		GameObject x = Anchors.Find ((GameObject obj) => obj.name == anchorId);
 		if (x != null)
