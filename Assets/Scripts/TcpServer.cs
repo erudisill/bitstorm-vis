@@ -50,6 +50,9 @@ public class TcpServer : MonoBehaviour {
     }
 
     private void stopThread(Thread thread) {
+		if (thread == null)
+			return;
+
         if (thread.IsAlive) {
             thread.Abort();
         }
@@ -106,6 +109,9 @@ public class TcpServer : MonoBehaviour {
 	}
 
 	void ParsePositionPacket(string csvString) {
+		if (OnPacketPositionSent == null)
+			return;
+
         string[] parts = csvString.Split(' ');
 
 		string tagid = parts[1];
@@ -139,8 +145,11 @@ public class TcpServer : MonoBehaviour {
 			r.id = ranges[0];
 			r.dist = Double.Parse(ranges[1]);
 			results.Add(r);
+			if (surveyScript != null)
+				surveyScript.SubmitAnchor(r.id);
 		}
-		OnPacketSent(tagid, results); 
+		if (OnPacketSent != null)
+			OnPacketSent(tagid, results); 
 	}
 
 	void AnchorReport(string csvString) {
@@ -174,6 +183,15 @@ public class TcpServer : MonoBehaviour {
 	public void SendSurveyRequest(string anchorId, string targetId, int reps, int periodms) {
 		if (socket != null) {
 			string msg = "r " + anchorId + " " + targetId + " " + reps.ToString() + " " + periodms.ToString() + "\r";
+			byte[] buf = ASCIIEncoding.ASCII.GetBytes(msg);
+			socket.Send(buf);
+			Debug.Log("Sent " + msg);
+		}
+	}
+
+	public void SendAnchorDiscovery() {
+		if (socket != null) {
+			string msg = "a \r";
 			byte[] buf = ASCIIEncoding.ASCII.GetBytes(msg);
 			socket.Send(buf);
 			Debug.Log("Sent " + msg);
