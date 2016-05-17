@@ -8,8 +8,11 @@ public class BitStormAPI : MonoBehaviour
 
     private Survey surveyScript = null;
 
+    public string UrlPrefix = "http://192.168.99.100:9902/";
+
     public string LastResult = string.Empty;
     public string LastError = string.Empty;
+
 
     public void Start()
     {
@@ -31,7 +34,7 @@ public class BitStormAPI : MonoBehaviour
 
 
         Debug.Log("Sending discover request to Bitstorm API");
-        WWW w = new WWW("http://10.0.0.227:9902/anchor/discover", encoding.GetBytes(postData), postHeader);
+        WWW w = new WWW(UrlPrefix + "anchor/discover", encoding.GetBytes(postData), postHeader);
         yield return w;
 
         if (!string.IsNullOrEmpty(w.error))
@@ -43,7 +46,7 @@ public class BitStormAPI : MonoBehaviour
 
         Debug.Log("Delay and check for anchors ...");
         yield return new WaitForSeconds(1.0f);
-        w = new WWW("http://10.0.0.227:9902/anchor/*");
+        w = new WWW(UrlPrefix + "anchor/*");
         yield return w;
 
         if (!string.IsNullOrEmpty(w.error))
@@ -73,7 +76,7 @@ public class BitStormAPI : MonoBehaviour
     {
         LastError = string.Empty;
 
-        WWW w = new WWW("http://10.0.0.227:9902/anchor/" + anchorid);
+        WWW w = new WWW(UrlPrefix + "anchor/" + anchorid);
         yield return w;
 
         if (!string.IsNullOrEmpty(w.error))
@@ -92,7 +95,7 @@ public class BitStormAPI : MonoBehaviour
     {
         LastError = string.Empty;
 
-        WWW w = new WWW(string.Format("http://10.0.0.227:9902/anchor/range/{0}/{1}/{2}/{3}", anchorid, otherid, reps, dly));
+        WWW w = new WWW(string.Format(UrlPrefix + "anchor/range/{0}/{1}/{2}/{3}", anchorid, otherid, reps, dly));
         yield return w;
 
         if (!string.IsNullOrEmpty(w.error))
@@ -119,7 +122,7 @@ public class BitStormAPI : MonoBehaviour
 
 
         Debug.Log("DoUpdateAnchor: " + postData);
-        WWW w = new WWW("http://10.0.0.227:9902/anchor/", encoding.GetBytes(postData), postHeader);
+        WWW w = new WWW(UrlPrefix + "anchor/", encoding.GetBytes(postData), postHeader);
         yield return w;
 
         if (!string.IsNullOrEmpty(w.error))
