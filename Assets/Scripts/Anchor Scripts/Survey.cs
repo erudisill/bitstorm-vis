@@ -87,6 +87,9 @@ public class Survey : MonoBehaviour {
 		}
 	}
 
+    public void RetrieveAnchors() {
+    }
+
 	public void SubmitAllAnchors() {
 		foreach (string a in AnchorIds) {
 			DoSubmitAnchor(a);
@@ -119,8 +122,10 @@ public class Survey : MonoBehaviour {
 
 	private void DoSubmitAnchor(string anchorId) {
 		GameObject x = Anchors.Find ((GameObject obj) => obj.name == anchorId);
-		if (x != null)
+        if (x != null) {
+            // update the anchor
 			return;
+        }
 
 		x = Instantiate<GameObject>(AnchorPrefab);
 		x.name = anchorId;
@@ -132,6 +137,8 @@ public class Survey : MonoBehaviour {
         if (labelScript != null) {
             labelScript.GetComponent<TextMesh>().text = anchorId;
         }
+
+        x.BroadcastMessage("Build", anchorId);
 
 		Anchors.Add(x);
 
@@ -501,4 +508,13 @@ public class Survey : MonoBehaviour {
 		markerGroup.transform.Rotate(new Vector3(0, ry, 0));
 
 	}
+
+    public void ToggleLabels(Toggle toggle) {
+        foreach (GameObject go in Anchors) {
+            AnchorLabelScript als = go.GetComponentInChildren<AnchorLabelScript>();
+            if (als != null) {
+                als.Toggle(toggle.isOn);
+            }
+        }
+    }
 }

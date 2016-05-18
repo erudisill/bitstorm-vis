@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using SimpleJSON;
@@ -13,6 +14,10 @@ public class BitStormAPI : MonoBehaviour
     public string LastResult = string.Empty;
     public string LastError = string.Empty;
 
+    public class AnchorDescription {
+        public string id;
+        public Vector3 position;
+    }
 
     public void Start()
     {
@@ -66,6 +71,14 @@ public class BitStormAPI : MonoBehaviour
         var j = JSON.Parse(w.text);
         for (int i = 0; i < j.Count; i++)
         {
+//            try {
+//                AnchorDescription ad = new AnchorDescription();
+//                ad.id = j[i]["anchorid"];
+//                ad.position = new Vector3(j[i]["position"][0].AsFloat,j[i]["position"][1].AsFloat,j[i]["position"][2].AsFloat)
+//                surveyScript.SubmitAnchor(j[i]["anchorid"]);
+//            } catch (Exception ex) {
+//                Debug.LogError("Bad anchor description from server (" + ex.Message + "): " + w.text);
+//            }
             surveyScript.SubmitAnchor(j[i]["anchorid"]);
         }
 

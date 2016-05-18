@@ -13,6 +13,8 @@ public class AnchorLabelScript : MonoBehaviour {
 	public Camera cameraToUse ;   // Only use this if useMainCamera is false
 	Transform thisTransform;
 
+    private MeshRenderer meshRenderer;
+
 
 	void Start () 
 	{
@@ -21,6 +23,8 @@ public class AnchorLabelScript : MonoBehaviour {
 //		offset.z = 0.5f;
 		thisTransform = transform;
 		thisTransform.rotation = Quaternion.Euler (90, 0, 0);
+
+        meshRenderer = GetComponent<MeshRenderer>();
 	}
 
 	void Update()
@@ -28,4 +32,8 @@ public class AnchorLabelScript : MonoBehaviour {
 		thisTransform.position = target.position + offset;
 		thisTransform.rotation = Quaternion.Euler (90, 0, 0);
 	}
+
+    public void Toggle(bool newState) {
+        meshRenderer.enabled = newState;
+    }
 }
