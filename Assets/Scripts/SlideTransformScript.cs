@@ -19,8 +19,11 @@ public class SlideTransformScript : MonoBehaviour {
     }
 
     public void UpdatePosition() {
-        startPos = Target.transform.position;
-        mySlider.value = 0;
+        if (Target != null)
+            startPos = Target.transform.position;
+        
+        if (mySlider != null)
+            mySlider.value = 0;
     }
 
     public void Slide(Slider slider) {

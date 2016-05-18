@@ -2082,7 +2082,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 264038901}
+      - m_Target: {fileID: 264038899}
         m_MethodName: DiscoverAnchors
         m_Mode: 1
         m_Arguments:

@@ -17,7 +17,10 @@ public class BitStormAPI : MonoBehaviour
     public class AnchorDescription {
         public string id;
         public Vector3 position;
+        public bool is_surveyed;
     }
+
+    public List<AnchorDescription> SurveyedAnchors = new List<AnchorDescription>();
 
     public void Start()
     {
@@ -71,15 +74,60 @@ public class BitStormAPI : MonoBehaviour
         var j = JSON.Parse(w.text);
         for (int i = 0; i < j.Count; i++)
         {
-//            try {
-//                AnchorDescription ad = new AnchorDescription();
-//                ad.id = j[i]["anchorid"];
-//                ad.position = new Vector3(j[i]["position"][0].AsFloat,j[i]["position"][1].AsFloat,j[i]["position"][2].AsFloat)
-//                surveyScript.SubmitAnchor(j[i]["anchorid"]);
-//            } catch (Exception ex) {
-//                Debug.LogError("Bad anchor description from server (" + ex.Message + "): " + w.text);
-//            }
-            surveyScript.SubmitAnchor(j[i]["anchorid"]);
+            try {
+                AnchorDescription ad = new AnchorDescription();
+                ad.id = j[i]["anchorid"];
+                ad.position = new Vector3(j[i]["position"][0].AsFloat,j[i]["position"][1].AsFloat,j[i]["position"][2].AsFloat);
+                ad.is_surveyed = j[i]["is_surveyed"].AsBool;
+                //surveyScript.SubmitAnchor(j[i]["anchorid"]);
+                surveyScript.SubmitAnchorDescription(ad);
+            } catch (Exception ex) {
+                Debug.LogError("Bad anchor description from server (" + ex.Message + "): " + w.text);
+            }
+//            surveyScript.SubmitAnchor(j[i]["anchorid"]);
+        }
+
+        yield return true;
+    }
+
+
+    public IEnumerator DoGetSurveyedAnchors()
+    {
+        Dictionary<string, string> postHeader = new Dictionary<string, string>();
+
+        postHeader.Add("Content-Type", "application/json");
+
+        WWW w = new WWW(UrlPrefix + "anchor/*");
+        yield return w;
+
+        if (!string.IsNullOrEmpty(w.error))
+        {
+            Debug.LogError(w.error);
+            Debug.LogError(w.text);
+            yield return false;
+        }
+
+        if (surveyScript == null)
+        {
+            Debug.Log("No Survey Script found.  Done.");
+            yield return false;
+        }
+
+        //    {"E937": {"position": [0, 0, 0], "anchorid": "E937"}, "18FC": {"position": [0, 0, 0], "anchorid": "18FC"}, "C825": {"position": [0, 0, 0], "anchorid": "C825"}, "1BCC": {"position": [0, 0, 0], "anchorid": "1BCC"}}
+        var j = JSON.Parse(w.text);
+        SurveyedAnchors.Clear();
+        for (int i = 0; i < j.Count; i++)
+        {
+            try {
+                AnchorDescription ad = new AnchorDescription();
+                ad.id = j[i]["anchorid"];
+                ad.position = new Vector3(j[i]["position"][0].AsFloat,j[i]["position"][1].AsFloat,j[i]["position"][2].AsFloat);
+                ad.is_surveyed = j[i]["is_surveyed"].AsBool;
+                if (ad.is_surveyed)
+                    SurveyedAnchors.Add(ad);
+            } catch (Exception ex) {
+                Debug.LogError("Bad anchor description from server (" + ex.Message + "): " + w.text);
+            }
         }
 
         yield return true;
@@ -145,5 +193,6 @@ public class BitStormAPI : MonoBehaviour
             yield return false;
         }
     }
+        
 }
 

@@ -79,6 +79,10 @@ public class Survey : MonoBehaviour {
 
 		tcpServerScript = GetComponent<TcpServer> ();
         bitstormScript = GetComponent<BitStormAPI>();
+
+        if (!Simulate && AnchorIds.Count == 0 && bitstormScript != null) {
+            StartCoroutine(DoRetrieveAnchors());   
+        }
 	}
 
 	void Update() {
@@ -87,7 +91,26 @@ public class Survey : MonoBehaviour {
 		}
 	}
 
-    public void RetrieveAnchors() {
+    public IEnumerator DoRetrieveAnchors() {
+        yield return bitstormScript.DoGetSurveyedAnchors();
+        Debug.Log("surveyedAnchors = " + bitstormScript.SurveyedAnchors.Count.ToString());
+        if (bitstormScript.SurveyedAnchors.Count > 0) {
+            foreach (BitStormAPI.AnchorDescription ad in bitstormScript.SurveyedAnchors) {
+                //SubmitAnchorDescription(ad);
+                DoSubmitAnchorDescription(ad);
+            }
+            CenterCamera();
+        }
+    }
+
+
+    public void DiscoverAnchors() {
+        foreach (GameObject go in Anchors) {
+            Destroy(go);
+        }
+        Anchors.Clear();
+        surveyStatus = SurveyStatus.None;
+        bitstormScript.DiscoverAnchors();
     }
 
 	public void SubmitAllAnchors() {
@@ -102,6 +125,12 @@ public class Survey : MonoBehaviour {
 			Survey.ExecuteOnMainThread.Enqueue (() => DoSubmitAnchor (anchorId));
 		}
 	}
+
+    public void SubmitAnchorDescription(BitStormAPI.AnchorDescription ad) {
+        if (AnchorIds.Count == 0) {
+            Survey.ExecuteOnMainThread.Enqueue (() => DoSubmitAnchorDescription(ad));
+        }
+    }
 
 	public void SubmitSurveyResult (string anchorId, string targetId, float dist, int errors) {
 		Survey.ExecuteOnMainThread.Enqueue(() => DoSubmitSurveyResult(anchorId, targetId, dist, errors));
@@ -120,16 +149,36 @@ public class Survey : MonoBehaviour {
         }
     }
 
-	private void DoSubmitAnchor(string anchorId) {
+    private void DoSubmitAnchor(string anchorId) {
+        BitStormAPI.AnchorDescription ad = new BitStormAPI.AnchorDescription();
+        ad.id = anchorId;
+        ad.position = new Vector3();
+        ad.is_surveyed = false;
+        DoSubmitAnchorDescription(ad);
+    }
+
+    private void DoSubmitAnchorDescription(BitStormAPI.AnchorDescription ad) {
+        string anchorId = ad.id;
+
 		GameObject x = Anchors.Find ((GameObject obj) => obj.name == anchorId);
         if (x != null) {
-            // update the anchor
-			return;
+            // If anchor exists and is surveyed, update... Otherwise kill it and create a new one.
+            if (ad.is_surveyed) {
+                x.transform.position = ad.position;
+                return;
+            }
+
+            Destroy(x);
         }
 
 		x = Instantiate<GameObject>(AnchorPrefab);
 		x.name = anchorId;
-		x.transform.position = new Vector3(0 + Anchors.Count, 0.5f, 0);
+        if (ad.is_surveyed) {
+            x.transform.position = ad.position;
+        }
+        else {
+            x.transform.position = new Vector3(0 + Anchors.Count, 0.5f, 0);
+        }
 		x.transform.rotation = Quaternion.identity;
 		x.transform.parent = markerGroup.transform;
 
@@ -143,10 +192,12 @@ public class Survey : MonoBehaviour {
 		Anchors.Add(x);
 
 		OriginAnchor = Anchors [0];
-		if (Anchors.Count == NumAnchors && surveyStatus == SurveyStatus.None) {
-			StartCoroutine (GetRanges ());
-		}
 
+        if (ad.is_surveyed == false) {
+    		if (Anchors.Count == NumAnchors && surveyStatus == SurveyStatus.None) {
+    			StartCoroutine (GetRanges ());
+    		}
+        }
 	}
 
 	private void DoSubmitSurveyResult (string anchorId, string targetId, float dist, int errors) {
@@ -485,12 +536,12 @@ public class Survey : MonoBehaviour {
 		Vector3 groupVectors = new Vector3();
 		Vector3 center;
 
-		foreach (GameObject go in SurveyMarkers) {
+        foreach (GameObject go in Anchors) {
 			groupVectors += go.transform.position;
 		}
 
-		center = groupVectors / SurveyMarkers.Count;
-		center.y = (groupVectors.magnitude * 2f) / SurveyMarkers.Count + 5;
+		center = groupVectors / Anchors.Count;
+		center.y = (groupVectors.magnitude * 2f) / Anchors.Count + 5;
 
 		mainCam.transform.position = center;
 
