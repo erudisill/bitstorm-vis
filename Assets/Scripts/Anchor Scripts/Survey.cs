@@ -8,8 +8,8 @@ using SimpleJSON;
 
 public class Survey : MonoBehaviour {
 
+    public GameObject ZoomControl = null;
 	public GameObject AnchorPrefab = null;
-	public GameObject AnchorLabelPrefab;
 	public int NumAnchors = 4;
 	public GameObject Marker;
 	public int RangeReps = 10;
@@ -122,18 +122,17 @@ public class Survey : MonoBehaviour {
 		if (x != null)
 			return;
 
-		GameObject go = Instantiate<GameObject>(AnchorLabelPrefab);
-		go.GetComponent<TextMesh> ().text = anchorId;
-		go.name = anchorId;
-		AnchorLabelScript s = go.GetComponent <AnchorLabelScript>();
-
 		x = Instantiate<GameObject>(AnchorPrefab);
 		x.name = anchorId;
 		x.transform.position = new Vector3(0 + Anchors.Count, 0.5f, 0);
 		x.transform.rotation = Quaternion.identity;
 		x.transform.parent = markerGroup.transform;
-		s.transform.parent = x.transform;
-		s.target = x.transform;
+
+        AnchorLabelScript labelScript = x.GetComponentInChildren<AnchorLabelScript>();
+        if (labelScript != null) {
+            labelScript.GetComponent<TextMesh>().text = anchorId;
+        }
+
 		Anchors.Add(x);
 
 		OriginAnchor = Anchors [0];
@@ -487,6 +486,12 @@ public class Survey : MonoBehaviour {
 		center.y = (groupVectors.magnitude * 2f) / SurveyMarkers.Count + 5;
 
 		mainCam.transform.position = center;
+
+        if (ZoomControl != null) {
+            SlideTransformScript sts = ZoomControl.GetComponent<SlideTransformScript>();
+            if (sts != null)
+                sts.UpdatePosition();
+        }
 	}
 
 	public void RotateMarkers(Slider slider)

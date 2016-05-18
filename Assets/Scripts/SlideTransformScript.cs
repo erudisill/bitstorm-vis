@@ -11,9 +11,16 @@ public class SlideTransformScript : MonoBehaviour {
     public float Factor = 5f;
 
     private Vector3 startPos;
+    private Slider mySlider;
 
     public void Start() {
+        mySlider = gameObject.GetComponent<Slider>();
+        UpdatePosition();
+    }
+
+    public void UpdatePosition() {
         startPos = Target.transform.position;
+        mySlider.value = 0;
     }
 
     public void Slide(Slider slider) {
