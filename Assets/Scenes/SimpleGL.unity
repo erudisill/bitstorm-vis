@@ -205,6 +205,7 @@ GameObject:
   - 65: {fileID: 1059969850}
   - 23: {fileID: 1059969849}
   - 114: {fileID: 1059969848}
+  - 114: {fileID: 1059969853}
   m_Layer: 0
   m_Name: Cube
   m_TagString: Untagged
@@ -233,7 +234,7 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_Materials:
-  - {fileID: 2100000, guid: fe9d0cb4bab7b134c976800b974ae51a, type: 2}
+  - {fileID: 2100000, guid: 6d46b8d35ffaa478bbd8fcad9eaae7f3, type: 2}
   m_SubsetIndices: 
   m_StaticBatchRoot: {fileID: 0}
   m_UseLightProbes: 1
@@ -281,6 +282,17 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 2
+--- !u!114 &1059969853
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1059969847}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af6b09ba4e65c46b88e84b699deacdc3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1665264818
 GameObject:
   m_ObjectHideFlags: 0
