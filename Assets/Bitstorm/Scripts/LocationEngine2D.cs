@@ -36,24 +36,20 @@ public class LocationEngine2D : MonoBehaviour {
 
     void OnEnable() {
 		if (tcpServer != null) {
-            print("LocationEngine2D: Adding TcpServer '" + tcpServer.gameObject.name + "'");
             tcpServer.OnPacketSent += PacketEventHandler;
 			tcpServer.OnPacketPositionSent += HandleOnPacketPositionSent;
         }
 		if (tcpClient != null) {
-			print ("LocationEngine2D: Adding TcpClient '" + tcpClient.gameObject.name + "'");
 			tcpClient.OnPacketPositionSent += HandleOnPacketPositionSent;
 		}
     }
 
     void OnDisable() {
 		if (tcpServer != null) {
-			print("LocationEngine2D: Removing TcpServer '" + tcpServer.gameObject.name + "'");
 			tcpServer.OnPacketSent -= PacketEventHandler;
 			tcpServer.OnPacketPositionSent -= HandleOnPacketPositionSent;
         }
 		if (tcpClient != null) {
-			print("LocationEngine2D: Removing TcpClient '" + tcpClient.gameObject.name + "'");
 			tcpClient.OnPacketPositionSent -= HandleOnPacketPositionSent;
 		}
     }

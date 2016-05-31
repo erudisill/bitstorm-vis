@@ -9,5 +9,7 @@ EditorBuildSettings:
     path: Assets/Scenes/EricWorking.unity
   - enabled: 0
     path: Assets/Scenes/DemoGL.unity
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/SimpleGL.unity
+  - enabled: 1
+    path: Assets/Bitstorm/Scenes/Demo.unity

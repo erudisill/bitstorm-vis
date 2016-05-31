@@ -1,0 +1,112 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &160542
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 4
+  m_Component:
+  - 4: {fileID: 419446}
+  - 114: {fileID: 11429960}
+  - 114: {fileID: 11473880}
+  - 114: {fileID: 11445608}
+  - 114: {fileID: 11450400}
+  m_Layer: 0
+  m_Name: BitstormManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &419446
+Transform:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 160542}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+--- !u!114 &11429960
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 160542}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 304f168b425df4cc686485bfbd26f36f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ZoomControl: {fileID: 0}
+  RangeReps: 10
+  RangeDelayMs: 10
+  RangeTimeout: 0.5
+  DefaultMarkerRot: 0
+  AnchorPrefab: {fileID: 192606, guid: 0db82a43360ea69458c383edc2204898, type: 2}
+  NumAnchors: 4
+  Simulate: 0
+  UseAnchorIds: 0
+  AnchorIds:
+  - 1BCC
+  - C825
+  - E937
+  - 18FC
+--- !u!114 &11445608
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 160542}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: adc49634e206149c185c4413f9aa8386, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  IP: 192.168.99.100
+  Port: 9901
+  Timeout: 5000
+--- !u!114 &11450400
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 160542}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c6b0dee1215fa4e4b84bcf94e02476ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  UrlPrefix: http://192.168.99.100:9902/
+  LastResult: 
+  LastError: 
+--- !u!114 &11473880
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 160542}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5f1f2f2538bf1848a81c17e9b23c906, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  TagPrefab: {fileID: 124042, guid: 2c46e41354aed1e479f6cdbdb2c473f0, type: 2}
+  LastReportTextObject: {fileID: 0}
+  UseFilteredDistance: 0
+--- !u!1001 &100100000
+Prefab:
+  m_ObjectHideFlags: 1
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications: []
+    m_RemovedComponents: []
+  m_ParentPrefab: {fileID: 0}
+  m_RootGameObject: {fileID: 160542}
+  m_IsPrefabParent: 1

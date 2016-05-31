@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections;
 using System.Net;
 using System.Net.Sockets;
@@ -21,20 +22,32 @@ public class TcpClient : MonoBehaviour
 	private Thread startThread;
 	private bool shutdown;
 
+	private bool useThreads = false;
+
 	// Use this for initialization
 	void Start ()
 	{
-		shutdown = false;
-		startThread = new Thread (new ThreadStart (ClientLoop));
-		startThread.IsBackground = true;
-		startThread.Start (); 
+//		if (Application.platform != RuntimePlatform.WebGLPlayer) {
+//			useThreads = true;
+//		}		
+//		if (useThreads) {
+//			Debug.Log ("TcpClient: Using threads.");
+//			shutdown = false;
+//			startThread = new Thread (new ThreadStart (ClientLoop));
+//			startThread.IsBackground = true;
+//			startThread.Start (); 
+//		} else {
+//			Debug.Log ("TcpClient: NOT using threads.");
+//		}
 	}
 
 	void Update ()
 	{
-		if (shutdown) {
-			Debug.Log ("Closing TcpClient");
-			_client.Close ();
+		if (useThreads) {
+			if (shutdown) {
+				Debug.Log ("Closing TcpClient");
+				_client.Close ();
+			}
 		}
 	}
 
@@ -43,14 +56,32 @@ public class TcpClient : MonoBehaviour
 		StopClient ();
 	}
 
-	public void StopClient ()
-	{
-		shutdown = true;
-		if (_client != null) {
-			_client.Close();
+	public void StartClient() {
+		if (Application.platform != RuntimePlatform.WebGLPlayer) {
+			useThreads = true;
+		}		
+		if (useThreads) {
+			Debug.Log ("TcpClient: Using threads.");
+			shutdown = false;
+			startThread = new Thread (new ThreadStart (ClientLoop));
+			startThread.IsBackground = true;
+			startThread.Start (); 
+		} else {
+			Debug.Log ("TcpClient: NOT using threads.");
 		}
 	}
 
+	public void StopClient ()
+	{
+		if (useThreads) {
+			shutdown = true;
+			if (_client != null) {
+				_client.Close ();
+			}
+		}
+	}
+
+	// When using threads, just connect directly to the server
 	private void ClientLoop ()
 	{
 		StringBuilder msg = new StringBuilder ();
@@ -106,6 +137,17 @@ public class TcpClient : MonoBehaviour
 					Thread.Sleep (1000);
 				}
 			}
+		}
+	}
+
+	// When not using threads, some external process has to push position packets into this function
+	public void PushPositionPacket(string packet) {
+		// For now, just forward it on...
+		try {
+			ParsePositionPacket(packet);
+		}
+		catch (Exception ex) {
+			Debug.LogError ("PushPositionPacket: ERRRR: " + ex.Message);
 		}
 	}
 
