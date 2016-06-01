@@ -7,6 +7,7 @@ using Vectrosity;
 
 public class LocationEngine2D : MonoBehaviour { 
 
+
 	TcpServer tcpServer; 
 	TcpClient tcpClient;
 
@@ -63,7 +64,7 @@ public class LocationEngine2D : MonoBehaviour {
         LocationEngine2D.ExecuteOnMainThread.Enqueue(() => ProcessRangeReport(tagID, ranges));
     }
 
-	void ProcessPosition (string tagID, Vector3 pos)
+	public void ProcessPosition (string tagID, Vector3 pos)
 	{
 		GameObject tag = null;
 		try {
@@ -79,7 +80,7 @@ public class LocationEngine2D : MonoBehaviour {
 		}
 		
 	}
-    void ProcessRangeReport(string tagId, List<TcpServer.AnchorRange> ranges) {
+    public void ProcessRangeReport(string tagId, List<TcpServer.AnchorRange> ranges) {
 
 		if (textComponent != null) {
 			textComponent.text = DateTime.Now.ToLongTimeString();

@@ -9,9 +9,9 @@ using System.Text;
 public class TcpClient : MonoBehaviour
 {
 
-	public delegate void PacketPositionEvent (string tagID,Vector3 pos);
+//	public delegate void PacketPositionEvent (string tagID,Vector3 pos);
 
-	public event PacketPositionEvent OnPacketPositionSent;
+	public event Bitstorm.PacketPositionEvent OnPacketPositionSent;
 
 	public string IP = "127.0.0.1";
 	public int Port = 1337;

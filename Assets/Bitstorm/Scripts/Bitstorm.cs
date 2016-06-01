@@ -3,6 +3,8 @@ using System.Collections;
 
 public class Bitstorm : MonoBehaviour {
 
+	public delegate void PacketPositionEvent (string tagID,Vector3 pos);
+
 	[Tooltip("Run local simulation?")]
 	public bool Simulate = false;
 
@@ -31,7 +33,7 @@ public class Bitstorm : MonoBehaviour {
 
 	void LaunchSimulation() {
 		surveyScript.Simulate ();
-		simScript.StartSimulation ();
+		simScript.StartSimulation (engineScript.ProcessPosition);
 	}
 
 	void LaunchLive() {

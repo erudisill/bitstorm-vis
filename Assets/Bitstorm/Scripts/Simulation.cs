@@ -13,6 +13,9 @@ public class Simulation : MonoBehaviour {
 	[Tooltip("Tag ID to be used.")]
 	public string TagId = "7777";
 
+	[Tooltip("Number of steps around the ellipse.")]
+	public int StepCount = 24;
+
 	[Tooltip("Delay in seconds between steps.")]
 	public float StepDelay = 1f;
 
@@ -21,7 +24,11 @@ public class Simulation : MonoBehaviour {
 	private List<Vector3> path = new List<Vector3> ();
 	private int pathIndex = 0;
 
-	public void StartSimulation() {
+	private Bitstorm.PacketPositionEvent positionEventHandler = null;
+
+	public void StartSimulation(Bitstorm.PacketPositionEvent handler) {
+
+		positionEventHandler = handler;
 
 		// Get bounds
 		List<Transform> transforms = new List<Transform> ();
@@ -35,6 +42,7 @@ public class Simulation : MonoBehaviour {
 		tag = GameObject.Find (TagId);
 		if (tag == null) {
 			tag = Instantiate (TagPrefab, new Vector3 (0f, 0.5f, 0f), Quaternion.identity) as GameObject;
+			tag.name = TagId;
 		}
 
 		CreatePathEllipse(b);
@@ -48,7 +56,7 @@ public class Simulation : MonoBehaviour {
 		float xc = b.center.x;
 		float yc = b.center.z;	
 
-		for (float i = 0; i < Mathf.PI * 2f; i += (Mathf.PI * 2f) / 24f) {
+		for (float i = 0; i < Mathf.PI * 2f; i += (Mathf.PI * 2f) / StepCount) {
 			float x = xc + (width * Mathf.Cos (i));
 			float y = yc + (height * Mathf.Sin (i));
 			Vector3 pos = new Vector3 (x, 0.5f, y);
@@ -61,7 +69,10 @@ public class Simulation : MonoBehaviour {
 		pathIndex++;
 		if (pathIndex >= path.Count)
 			pathIndex = 0;
-		tag.transform.position = path [pathIndex];
+//		tag.transform.position = path [pathIndex];
+		if (positionEventHandler != null) {
+			positionEventHandler(TagId, path [pathIndex]);
+		}
 		Invoke ("MoveToNextStep", StepDelay);
 	}
 
