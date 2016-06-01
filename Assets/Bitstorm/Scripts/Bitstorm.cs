@@ -32,12 +32,13 @@ public class Bitstorm : MonoBehaviour {
 	}
 
 	void LaunchSimulation() {
-		surveyScript.Simulate ();
+		surveyScript.StartSimulate ();
 		simScript.StartSimulation (engineScript.ProcessPosition);
 	}
 
 	void LaunchLive() {
 		clientScript.StartClient ();
+		surveyScript.StartLive ();
 		StartCoroutine(surveyScript.DoRetrieveAnchors());
 	}
 

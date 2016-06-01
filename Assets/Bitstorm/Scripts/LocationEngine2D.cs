@@ -68,8 +68,11 @@ public class LocationEngine2D : MonoBehaviour {
 	{
 		GameObject tag = null;
 		try {
-			tag = GameObject.FindGameObjectsWithTag(TagDefs.TAG_TAG).Where(t => tagID == t.name).First();
+			tag = GameObject.Find(tagID);
 		} catch(Exception) {
+		}
+
+		if (tag == null) {
 			tag = Instantiate(TagPrefab, new Vector3(0,0.5f,0), Quaternion.identity) as GameObject;
 			tag.name = tagID;
 		}

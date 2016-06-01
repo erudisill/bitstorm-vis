@@ -136,7 +136,7 @@ GameObject:
   m_Component:
   - 4: {fileID: 80959487}
   m_Layer: 0
-  m_Name: Anchors
+  m_Name: SimulatedAnchors
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

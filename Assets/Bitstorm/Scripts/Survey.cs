@@ -61,22 +61,10 @@ public class Survey : MonoBehaviour {
 	}
 	private SurveyStatus surveyStatus = SurveyStatus.None;
 
+	private bool isSimulation = false;
+
 	// Use this for initialization
 	void Start () {
-
-//		if (Simulate == false) {
-//			Anchors.Clear ();
-//			OriginAnchor = null;
-//		}
-
-		// Create the group to hold the markers
-		if (AnchorsGroup == null) {
-			AnchorsGroup = new GameObject ();
-			AnchorsGroup.name = "Anchors";
-			AnchorsGroup.transform.position = Vector3.zero;
-			AnchorsGroup.transform.rotation = Quaternion.identity;
-		}
-
 		tcpServerScript = GetComponent<TcpServer> ();
         bitstormScript = GetComponent<BitStormAPI>();
 	}
@@ -87,7 +75,33 @@ public class Survey : MonoBehaviour {
 		}
 	}
 
-	public void Simulate() {
+	public void StartLive() {
+		isSimulation = false;
+
+		// Kill anchors group if this is live data
+		if (AnchorsGroup != null) {
+			GameObject.Destroy (AnchorsGroup);
+			AnchorsGroup = null;
+		}
+
+		// Create the group to hold the markers
+		if (AnchorsGroup == null) {
+			AnchorsGroup = new GameObject ();
+			AnchorsGroup.name = "Anchors";
+			AnchorsGroup.transform.position = Vector3.zero;
+			AnchorsGroup.transform.rotation = Quaternion.identity;
+		}
+	}
+
+	public void StartSimulate() {
+		isSimulation = true;
+
+		// If we don't have an anchors group, die.
+		if (AnchorsGroup == null) {
+			Debug.LogError ("No AnchorsGroup available for simulation.  Create one and attach Anchors to it.");
+			Application.Quit ();
+		}
+
 		foreach (Transform t in AnchorsGroup.transform) {
 			GameObject g = t.gameObject;
 			AnchorLabelScript labelScript = g.GetComponentInChildren<AnchorLabelScript>();

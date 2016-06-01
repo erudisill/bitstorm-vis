@@ -21,6 +21,8 @@ public class Simulation : MonoBehaviour {
 
 	private GameObject tag = null;
 
+	private List<GameObject> anchors = new List<GameObject> ();
+
 	private List<Vector3> path = new List<Vector3> ();
 	private int pathIndex = 0;
 
@@ -30,10 +32,12 @@ public class Simulation : MonoBehaviour {
 
 		positionEventHandler = handler;
 
-		// Get bounds
+		// Get bounds and collect convenient references to anchors
 		List<Transform> transforms = new List<Transform> ();
-		foreach (Transform t in AnchorsGroup.transform)
+		foreach (Transform t in AnchorsGroup.transform) {
+			anchors.Add (t.gameObject);
 			transforms.Add (t);
+		}
 		Bounds b = new Bounds(transforms[0].position, Vector3.zero);
 		for (int i = 1; i < transforms.Count; i++)
 			b.Encapsulate (transforms [i].position);
@@ -56,13 +60,23 @@ public class Simulation : MonoBehaviour {
 		float xc = b.center.x;
 		float yc = b.center.z;	
 
+		string allRanges = string.Empty;
+
 		for (float i = 0; i < Mathf.PI * 2f; i += (Mathf.PI * 2f) / StepCount) {
 			float x = xc + (width * Mathf.Cos (i));
 			float y = yc + (height * Mathf.Sin (i));
 			Vector3 pos = new Vector3 (x, 0.5f, y);
 			path.Add (pos);
-			//Instantiate (TagPrefab, pos, Quaternion.identity);
+			// For debugging, print out the range report
+			string range = "* " + TagId + " ";
+			foreach (GameObject a in anchors) {
+				float dist = (pos - a.transform.position).magnitude;
+				range += a.name + ":" + dist.ToString () + " ";
+			}
+			allRanges += range + "\r\n";
 		}
+
+		Debug.Log (allRanges);
 	}
 
 	public void MoveToNextStep() {
