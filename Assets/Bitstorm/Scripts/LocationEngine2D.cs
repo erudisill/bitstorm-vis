@@ -79,7 +79,8 @@ public class LocationEngine2D : MonoBehaviour {
 
 		TagMove tagScript = tag.GetComponent<TagMove> ();
 		if(tagScript != null) {
-			tagScript.Move(pos);
+			//tagScript.Move(pos);
+			tagScript.PushPosition(pos);
 		}
 		
 	}

@@ -92,7 +92,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5cde21621908441c4911ce545f0711a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SmoothnessFactor: 0.5
+  LerpDuration: 1
+  sampleSize: 5
 --- !u!135 &13523240
 SphereCollider:
   m_ObjectHideFlags: 1
